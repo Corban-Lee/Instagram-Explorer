@@ -3,3 +3,4 @@ from .sidebar import Sidebar
 from .image_handler import get_image
 from .style import Style
 from .frames import *
+from .progressCircle import ProgressCircle

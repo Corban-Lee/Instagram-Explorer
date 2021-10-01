@@ -4,14 +4,14 @@ from urllib.error import URLError
 from PIL import Image, ImageTk, ImageDraw, ImageFilter
 from io import BytesIO
 
-IMAGE_PATH = 'assets/images/'
+IMAGE_PATH = 'assets/images'
 
 
-def get_image(source:str,
+def get_image(root, source:str,
               width:int, height:int,
               mode:Literal['path', 'url']='path',
               maketk:bool=True, roundCornerRadius:int=0, makeCircle:bool=False,
-              rotation:int=0, cropToSize:bool=False, addBorder:bool=False,
+              rotation:int=0, cropToSize:bool=False,
               urlRetries:int=3
               ):
     
@@ -28,10 +28,11 @@ def get_image(source:str,
     \ncropToSize        - crops image to width/height arguments (sometimes produces black bars)"""
 
 
+    theme = str(root.tk.call("ttk::style", "theme", "use")).split("-")[-1]
     width, height = int(width), int(height)  # pillow only excepts integers for resizing
     
     if (mode == 'path'):
-        path = IMAGE_PATH + source
+        path = f"{IMAGE_PATH}/{theme}/{source}"
         image = Image.open(fp=path)
         
     elif (mode == 'url'):

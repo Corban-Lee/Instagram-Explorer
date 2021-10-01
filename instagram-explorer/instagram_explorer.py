@@ -41,7 +41,7 @@ class Root(tk.Tk):
         
         # setup style
         self.tk.call("source", "assets/theme/sun-valley.tcl")
-        self.tk.call("set_theme", "light")
+        self.tk.call("set_theme", "dark")
         self.style = scripts.Style(self)
         self.configure(borderwidth=1, relief="solid")
         
@@ -64,30 +64,37 @@ class Root(tk.Tk):
         self.instabot = instabot.Bot()
         self.user = None
         
-        # setup titlebar
-        self.titlebar = scripts.Titlebar(self)
-        self.titlebar.pack(side="top", fill="x", padx=10, pady=10)
-        
         # create body
         self.body = ttk.Frame(self, style="RootBody.TFrame")
-        self.body.pack(side="bottom", fill="both", expand=True)
+        self.body.pack(fill="both", expand=True)
+        
+        # setup titlebar
+        self.prepare_titlebar()
+        
+        # prepare inner body
+        self.innerBody = ttk.Frame(self.body, style="RootBody.TFrame")
+        self.innerBody.pack(side="bottom", fill="both", expand=True)
         
         # create sidebar
-        self.sidebar = scripts.Sidebar(self.body)
-        self.sidebar.pack(side="left", fill="y", padx=(10,0), pady=(0,10))
+        self.prepare_sidebar()
         
         # create scrollbar
-        scrollFrame = ttk.LabelFrame(self.body, labelwidget=ttk.Frame())
+        scrollFrame = ttk.LabelFrame(self.innerBody, labelwidget=ttk.Frame())
         scrollFrame.pack(side="right", fill="y", pady=(0,10), padx=(0,10))
         
         self.scrollbar = ttk.Scrollbar(scrollFrame, orient="vertical", style="NoTrough.TScrollbar")
         self.scrollbar.pack(fill="y", padx=1, pady=2, expand=True)
         
         # create frame holder
-        self.frameHolder = ttk.LabelFrame(self.body, labelwidget=ttk.Frame())
+        self.frameHolder = ttk.LabelFrame(self.innerBody, labelwidget=ttk.Frame())
         self.frameHolder.pack(side="right", fill="both", expand=True, padx=10, pady=(0,10))
         
         # prepare frames
+        self.prepare_frames()
+        self.loadframe("Home")
+        
+    
+    def prepare_frames(self) -> None:
         self.shownFrame = None
         self.allFrames = {}
         for filename in os.listdir("assets/scripts/frames/"):
@@ -97,10 +104,26 @@ class Root(tk.Tk):
             frameName = filename.replace(".py", "")
             self.allFrames[frameName] = eval(f"scripts.{frameName}(master=self.frameHolder, root=self)")
             
-        self.loadframe("Home")
+            
+    def prepare_sidebar(self) -> None:
+        self.sidebar = scripts.Sidebar(self.innerBody)
+        self.sidebar.pack(side="left", fill="y", padx=(10,0), pady=(0,10))
+        
+        
+    def prepare_titlebar(self) -> None:
+        self.titlebar = scripts.Titlebar(self.body, self)
+        self.titlebar.pack(side="top", fill="x", padx=10, pady=10)  
+        
+        
+    def showframe(self, frameName:str) -> None:
+        try: self.shownFrame.pack_forget()
+        except AttributeError: pass
+        
+        self.shownFrame = self.allFrames[frameName]
+        self.shownFrame.pack(fill="both", expand=True, padx=2, pady=2)
             
             
-    def loadframe(self, frameName:str, **kw):
+    def loadframe(self, frameName:str, **kw) -> None:
         try:
             self.shownFrame.pack_forget()
             self.shownFrame.unload()
@@ -117,7 +140,28 @@ class Root(tk.Tk):
             
             
     def close_application(self) -> None:
-        sys.exit()    
+        sys.exit()   
+        
+        
+    def on_theme_change(self, theme) -> None:
+        
+        try: self.shownFrame.unload()
+        except AttributeError: pass
+        
+        # destory old widgets
+        self.titlebar.destroy()
+        self.sidebar.destroy()
+        self.shownFrame.destroy()
+        
+        self.tk.call("set_theme", theme)
+        self.style = scripts.Style(self)
+        
+        self.prepare_titlebar()
+        self.prepare_sidebar()
+        self.prepare_frames()
+        
+        self.loadframe("Home")
+         
         
     def set_app_window(self) -> None:
         hwnd = windll.user32.GetParent(self.winfo_id())
