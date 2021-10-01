@@ -41,7 +41,7 @@ class Root(tk.Tk):
         
         # setup style
         self.tk.call("source", "assets/theme/sun-valley.tcl")
-        self.tk.call("set_theme", "dark")
+        self.tk.call("set_theme", self.configParser.get("appearance", "theme"))
         self.style = scripts.Style(self)
         self.configure(borderwidth=1, relief="solid")
         
@@ -93,6 +93,15 @@ class Root(tk.Tk):
         self.prepare_frames()
         self.loadframe("Home")
         
+        
+    def get_updated_configs(self) -> None:
+        self.configParser.read("assets/config.ini")
+        
+        
+    def write_updated_configs(self) -> None:
+        with open("assets/config.ini", "w") as file:
+            self.configParser.write(file)
+        
     
     def prepare_frames(self) -> None:
         self.shownFrame = None
@@ -112,7 +121,7 @@ class Root(tk.Tk):
         
     def prepare_titlebar(self) -> None:
         self.titlebar = scripts.Titlebar(self.body, self)
-        self.titlebar.pack(side="top", fill="x", padx=10, pady=10)  
+        self.titlebar.pack(side="top", fill="x", padx=10, pady=10)
         
         
     def showframe(self, frameName:str) -> None:
@@ -151,6 +160,8 @@ class Root(tk.Tk):
         # destory old widgets
         self.titlebar.destroy()
         self.sidebar.destroy()
+
+        lastFrame = self.shownFrame.__class__.__name__
         self.shownFrame.destroy()
         
         self.tk.call("set_theme", theme)
@@ -160,7 +171,7 @@ class Root(tk.Tk):
         self.prepare_sidebar()
         self.prepare_frames()
         
-        self.loadframe("Home")
+        self.loadframe(lastFrame)
          
         
     def set_app_window(self) -> None:
