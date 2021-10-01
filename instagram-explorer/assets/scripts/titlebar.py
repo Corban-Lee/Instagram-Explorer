@@ -8,13 +8,13 @@ class Titlebar(ttk.LabelFrame):
     def __init__(self, master, root) -> None:
         super().__init__(master, labelwidget=ttk.Frame())
         self.root = root
-        
+
         self.pack_propagate(False)
         self.configure(height=60)
         self.bind("<Button-1>", self.drag_window)
         
         self.body = ttk.Frame(self)
-        self.body.pack(side="top", fill="both", expand=True, padx=(3,3), pady=1)
+        self.body.pack(fill="both", expand=True, padx=3, pady=1)
         self.body.bind("<Button-1>", self.drag_window)
         
         closeImg = scripts.get_image(root, "close.png", 30, 30)
@@ -26,10 +26,6 @@ class Titlebar(ttk.LabelFrame):
         closeButton = ttk.Button(self.body, image=closeImg, style="TitlebarButton.TLabel", takefocus=False, command=root.close_application)
         closeButton.image = closeImg
         closeButton.pack(side="right", fill="y", ipadx=16)
-        
-        # maximizeButton = ttk.Button(self.body, image=maxImg, style="TitlebarButton.TLabel", takefocus=False, command=None)
-        # maximizeButton.image = maxImg
-        # maximizeButton.pack(side="right", fill="y", ipadx=16)
         
         minimizeButton = ttk.Button(self.body, image=minImg, style="TitlebarButton.TLabel", takefocus=False, command=self.minimize_window)
         minimizeButton.image = minImg
@@ -61,6 +57,13 @@ class Titlebar(ttk.LabelFrame):
         self.root.state('iconic')
         self.root.z = 0
 
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.titlebar = Titlebar(root)
+    root.titlebar.pack(side="top", fill="x")
+    root.mainloop()
 
         
         

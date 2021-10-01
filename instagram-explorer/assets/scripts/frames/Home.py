@@ -5,7 +5,6 @@ import instaloader
 import threading
 
 import assets.scripts as scripts
-from assets.scripts.titlebar import Titlebar
 
 class Home(ttk.Frame):
     def __init__(self, master, root):
@@ -18,23 +17,6 @@ class Home(ttk.Frame):
         topHolder.pack(side="top", pady=(74,0))
         
         ttk.Label(topHolder, text=self.root.title(), font=("HP Simplified Jpan Light", 20), anchor="s").pack(side="bottom", anchor="s")
-        
-        # logoImg = scripts.get_image("instagram_logo.png", 200, 200)
-        # logoLabel = ttk.Label(topHolder, image=logoImg, style="TLabel")
-        # logoLabel.image = logoImg
-        # logoLabel.pack(side="right")
-        
-        # _title = str(self.root.title()).split(" ")
-        
-        # titleHolder = ttk.Frame(topHolder)
-        # titleHolder.pack(side="left", padx=(0,35))
-        
-        # ttk.Label(titleHolder, text=_title[0], font=("HP Simplified Jpan Light", 40), anchor="e").pack(side="top", anchor="e")
-        # ttk.Label(titleHolder, text=_title[1], font=("HP Simplified Jpan Light", 40), anchor="e").pack(side="bottom", anchor="e")
-        
-        # titleLabel = ttk.Label(titleHolder, text=_title, font=("HP Simplified Jpan Light", 40), wraplength=600)
-        # titleLabel.pack(side="right", padx=(40,0))
-        
         ttk.Separator(self, orient="horizontal").pack(fill="x", padx=60, pady=(10,0))
         
         self.postFrame = ttk.Frame(self)
@@ -53,13 +35,14 @@ class Home(ttk.Frame):
         self.loadingPosts = True
         
         try:
-            for index, post in enumerate(instaloader.Hashtag.from_name(self.root.instaloader.context, "instagram").get_posts()):
+            for index, post in enumerate(instaloader.Hashtag.from_name(self.root.instaloader.context, "memes").get_posts()):
                 if (index == limit):
                     break
                 
                 if (not self.loadingPosts):
+                    print("loop ended at check 1")
                     break
-                
+                                
                 placeholderFrame = ttk.LabelFrame(self.postFrame, width=width, height=height, labelwidget=ttk.Frame())
                 placeholderFrame.pack(side="left", padx=10)
                 placeholderFrame.pack_propagate(False)
@@ -71,7 +54,11 @@ class Home(ttk.Frame):
                 thumbnail = scripts.get_image(self.root, post.url, width=width, height=height, mode="url", roundCornerRadius=12, cropToSize=True)
                 
                 if (not self.loadingPosts):
+                    print("loop ended at check 2")
                     break
+                
+                def set_bind(widget, _post):
+                    widget.bind("<Button-1>", lambda event: self.root.loadframe("Image", post=_post))
                 
                 try:
                     placeholderFrame.destroy()
@@ -79,11 +66,16 @@ class Home(ttk.Frame):
                     postLabel = ttk.Label(self.postFrame, image=thumbnail)
                     postLabel.image = thumbnail
                     postLabel.pack(side="left", padx=10)
+                    set_bind(postLabel, post)
                 except tk.TclError:
-                    pass
+                    print(f"failed to load post {index+1} on home field - tcl error")
+                
         except RuntimeError:
-            pass
+            print("cannot load home feed - run time error")
         
         except instaloader.exceptions.LoginRequiredException:
             print("cannot load home feed - login redirect")
+            
+        except ConnectionError:
+            print("cannot load home feed - connection error")
             

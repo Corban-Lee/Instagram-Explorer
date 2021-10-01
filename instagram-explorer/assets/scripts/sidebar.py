@@ -8,12 +8,16 @@ from assets.scripts.image_handler import get_image
 class Sidebar(ttk.LabelFrame):
     def __init__(self, master):
         super().__init__(master, width=350, labelwidget=ttk.Frame())
+        self.pack_propagate(False)
         
         self.root = master
         while (str(self.root) != "."):
             self.root = self.nametowidget(self.root.winfo_parent())
         
-        self.pack_propagate(False)
+        self._theme = tk.StringVar(value=str(self.root.tk.call("ttk::style", "theme", "use")).split("-")[-1])
+        self._theme.trace_add("write", lambda *arg: self.on_theme_change(themeButton, size))
+        
+        self._showPwrd = tk.BooleanVar(value=False)
         
         image = scripts.get_image
         size = (60, 60)
@@ -63,7 +67,7 @@ class Sidebar(ttk.LabelFrame):
         settingsButton.pack(side="top", fill="x")
         
         # exit button
-        exitButton = ttk.Button(mainMenu, text="Exit", image=exitImg, style="SidebarButton.TLabel", compound="left")
+        exitButton = ttk.Button(mainMenu, text="Exit", image=exitImg, style="SidebarButton.TLabel", compound="left", command=self.root.close_application)
         exitButton.image = exitImg
         exitButton.pack(side="top", fill="x", pady=(0,80))
         
@@ -71,30 +75,30 @@ class Sidebar(ttk.LabelFrame):
         # settings menu
         
         themeImg = get_image(self.root, "theme.png", *size)
+        # hidePassImg = get_image(self.root, "")
         settingsBackImg = get_image(self.root, "return.png", *size)
         
         settingsTitle = "Menu > Settings"
         ttk.Label(settingsMenu, text=settingsTitle, font=("HP Simplified Jpan Light", 20)).pack(side="top", anchor="w", padx=20, pady=(79,5))
         ttk.Separator(settingsMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=(0,25))
         
-        self._theme = tk.StringVar(value=str(self.root.tk.call("ttk::style", "theme", "use")).split("-")[-1])
-        
         # theme buttons
         themeButton = ttk.Checkbutton(settingsMenu, image=themeImg, style="SidebarButton.TLabel", compound="left", onvalue="dark", offvalue="light", variable=self._theme)
         themeButton.image = themeImg
         themeButton.pack(side="top", fill="x")
         
-        if (self._theme.get() == "light"):
-            themeButton.configure(text="Dark Mode")
-        else:
-            themeButton.configure(text="Light Mode")
-        
-        self._theme.trace_add("write", lambda *arg: self.on_theme_change(themeButton, size))
+        if (self._theme.get() == "light"): themeButton.configure(text="Dark Mode")
+        else: themeButton.configure(text="Light Mode")
         
         # settings back button -> home
         settingsBackButton = ttk.Button(settingsMenu, text="Back", image=settingsBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu(mainMenu))
         settingsBackButton.image = settingsBackImg
         settingsBackButton.pack(side="bottom", fill="x", pady=(0,80))
+        
+        # settings hide password button
+        hidePasswordButton = ttk.Button(settingsMenu, text="Back", image=settingsBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu(mainMenu))
+        hidePasswordButton.image = settingsBackImg
+        hidePasswordButton.pack(side="bottom", fill="x", pady=(0,80))
         
         
         # add spaces to all widgets

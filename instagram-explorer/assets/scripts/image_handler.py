@@ -40,7 +40,7 @@ def get_image(root, source:str,
             with urlopen(source) as u: rawData = u.read()
             image = Image.open(BytesIO(rawData))
         except URLError as e:
-            image = get_image(source=source, width=width, height=height, mode='url', urlRetries=urlRetries-1, maketk=False)
+            image = get_image(root, source=source, width=width, height=height, mode='url', urlRetries=urlRetries-1, maketk=False)
     
     else:
         raise TypeError(f"mode {mode} is invalid")
