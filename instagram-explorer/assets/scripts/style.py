@@ -1,5 +1,7 @@
 from tkinter import ttk
 
+import assets.scripts as scripts
+from assets.scripts import titlebar
 
 class Style(ttk.Style):
     def __init__(self, master):
@@ -24,7 +26,7 @@ class Style(ttk.Style):
         
         self.configure("Titlebar.TLabel", anchor="center")
         self.configure("TitlebarButton.TLabel", anchor="center")
-        self.map("TitlebarButton.TLabel", background=[("pressed", pressedbg), ("active", activebg)])
+        # self.map("TitlebarButton.TLabel", background=[("pressed", pressedbg), ("active", activebg)])
         
         
         self.configure("SidebarButton.TLabel", anchor="w", font=("HP Simplified Jpan Light", 15))

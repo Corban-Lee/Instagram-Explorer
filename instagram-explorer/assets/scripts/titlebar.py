@@ -17,19 +17,25 @@ class Titlebar(ttk.LabelFrame):
         self.body.pack(fill="both", expand=True, padx=3, pady=1)
         self.body.bind("<Button-1>", self.drag_window)
         
-        closeImg = scripts.get_image(root, "close.png", 30, 30)
-        maxImg = scripts.get_image(root, "maximize.png", 30, 30)
-        resImg = scripts.get_image(root, "restore.png", 30, 30)
-        minImg = scripts.get_image(root, "minimize.png", 30, 30)
-        iconImg = scripts.get_image(root, "logo.png", 40, 40)
+        size = (40, 40)
         
-        closeButton = ttk.Button(self.body, image=closeImg, style="TitlebarButton.TLabel", takefocus=False, command=root.close_application)
-        closeButton.image = closeImg
-        closeButton.pack(side="right", fill="y", ipadx=16)
+        closeImg = scripts.get_image(root, "close.png", *size)
+        closeActiveImg = scripts.get_image(root, "close_active.png", *size)
+        closePressedImg = scripts.get_image(root, "close_pressed.png", *size)
+
+        minImg = scripts.get_image(root, "minimize.png", *size)
+        minActiveImg = scripts.get_image(root, "minimize_active.png", *size)
+        minPressedImg = scripts.get_image(root, "minimize_pressed.png", *size)
         
-        minimizeButton = ttk.Button(self.body, image=minImg, style="TitlebarButton.TLabel", takefocus=False, command=self.minimize_window)
-        minimizeButton.image = minImg
-        minimizeButton.pack(side="right", fill="y", ipadx=16)
+        closeButton = ttk.Button(self.body, style="TitlebarButton.TLabel", takefocus=False, command=root.close_application)
+        closeButton.pack(side="right", fill="y", ipadx=8)
+        
+        self.dynamic_image_style(closeButton, normal=closeImg, active=closeActiveImg, pressed=closePressedImg)
+        
+        minimizeButton = ttk.Button(self.body, style="TitlebarButton.TLabel", takefocus=False, command=self.minimize_window)
+        minimizeButton.pack(side="right", fill="y", ipadx=8)
+        
+        self.dynamic_image_style(minimizeButton, normal=minImg, active=minActiveImg, pressed=minPressedImg)
         
         # titleLabel = ttk.Label(self.body, text=self.master.title(), style="Titlebar.TLabel", font=("HP Simplified Hans Light", 12))
         # titleLabel.pack(side="left", fill="y", padx=10)
@@ -38,6 +44,19 @@ class Titlebar(ttk.LabelFrame):
         # logoLabel = ttk.Label(self.body, image=iconImg, style="Titlebar.TLabel")
         # logoLabel.image = iconImg
         # logoLabel.pack(side="left", padx=(15,5), before=titleLabel)
+        
+        
+    def dynamic_image_style(self, button, normal, active, pressed) -> None:
+        
+        def update(image):
+            button.configure(image=image)
+            button.image = image
+        
+        button.bind("<Leave>", lambda event: update(normal))
+        button.bind("<Enter>", lambda event: update(active))
+        button.bind("<Button-1>", lambda event: update(pressed))
+        
+        update(normal)
         
         
     def drag_window(self, event) -> None:

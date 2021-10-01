@@ -13,17 +13,21 @@ class Sidebar(ttk.LabelFrame):
         self.root = master
         while (str(self.root) != "."):
             self.root = self.nametowidget(self.root.winfo_parent())
-        
-        self._theme = tk.StringVar(value=str(self.root.tk.call("ttk::style", "theme", "use")).split("-")[-1])
-        self._theme.trace_add("write", lambda *arg: self.on_theme_change(themeButton, size))
-        
-        self._showPwrd = tk.BooleanVar(value=False)
-        
+            
         image = scripts.get_image
         size = (60, 60)
         
+        self._theme = tk.StringVar(value=str(self.root.tk.call("ttk::style", "theme", "use")).split("-")[-1])
+        self._theme.trace_add("write", lambda *arg: self.on_theme_change())
+        
+        self._showPwrd = tk.BooleanVar(value=self.root.configParser.getboolean("privacy", "show_password"))
+        self._showPwrd.trace_add("write", lambda *arg: self.on_password_visibility_change(size))
+        
         mainMenu = ttk.Frame(self)
         settingsMenu = ttk.Frame(self)
+        accountMenu = ttk.Frame(self)
+        
+        self.menus = {"mainMenu": mainMenu, "settingsMenu": settingsMenu, "accountMenu": accountMenu}
         
         # main menu
 
@@ -45,24 +49,24 @@ class Sidebar(ttk.LabelFrame):
         searchButton.pack(side="top", fill="x", pady=(10,0))
         
         # account button
-        accountButton = ttk.Button(mainMenu, text="Account", image=accountImg, style="SidebarButton.TLabel", compound="left")
+        accountButton = ttk.Button(mainMenu, text="Account", image=accountImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu("accountMenu"))
         accountButton.image = accountImg
         accountButton.pack(side="top", fill="x")
         
         # upload button
-        uploadButton = ttk.Button(mainMenu, text="Upload", image=uploadImg, style="SidebarButton.TLabel", compound="left")
+        uploadButton = ttk.Button(mainMenu, text="Upload", image=uploadImg, style="SidebarButton.TLabel", compound="left", state="disabled")
         uploadButton.image = uploadImg
         uploadButton.pack(side="top", fill="x")
         
         # message button
-        messageButton = ttk.Button(mainMenu, text="Messages", image=messageImg, style="SidebarButton.TLabel", compound="left")
+        messageButton = ttk.Button(mainMenu, text="Messages", image=messageImg, style="SidebarButton.TLabel", compound="left", state="disabled")
         messageButton.image = messageImg
         messageButton.pack(side="top", fill="x")
         
         ttk.Separator(mainMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=25)
         
         # settings button
-        settingsButton = ttk.Button(mainMenu, text="Options", image=settingImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu(settingsMenu))
+        settingsButton = ttk.Button(mainMenu, text="Options", image=settingImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu("settingsMenu"))
         settingsButton.image = settingImg
         settingsButton.pack(side="top", fill="x")
         
@@ -75,7 +79,7 @@ class Sidebar(ttk.LabelFrame):
         # settings menu
         
         themeImg = get_image(self.root, "theme.png", *size)
-        # hidePassImg = get_image(self.root, "")
+        placeholderImg = get_image(self.root, "circle.png", *size)
         settingsBackImg = get_image(self.root, "return.png", *size)
         
         settingsTitle = "Menu > Settings"
@@ -85,39 +89,91 @@ class Sidebar(ttk.LabelFrame):
         # theme buttons
         themeButton = ttk.Checkbutton(settingsMenu, image=themeImg, style="SidebarButton.TLabel", compound="left", onvalue="dark", offvalue="light", variable=self._theme)
         themeButton.image = themeImg
-        themeButton.pack(side="top", fill="x")
+        themeButton.pack(side="top", fill="x", pady=(10,0))
         
         if (self._theme.get() == "light"): themeButton.configure(text="Dark Mode")
         else: themeButton.configure(text="Light Mode")
         
-        # settings back button -> home
-        settingsBackButton = ttk.Button(settingsMenu, text="Back", image=settingsBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu(mainMenu))
-        settingsBackButton.image = settingsBackImg
-        settingsBackButton.pack(side="bottom", fill="x", pady=(0,80))
-        
         # settings hide password button
-        hidePasswordButton = ttk.Button(settingsMenu, text="Back", image=settingsBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu(mainMenu))
-        hidePasswordButton.image = settingsBackImg
-        hidePasswordButton.pack(side="bottom", fill="x", pady=(0,80))
+        self.hidePasswordButton = ttk.Checkbutton(settingsMenu, style="SidebarButton.TLabel", compound="left", variable=self._showPwrd)
+        self.hidePasswordButton.pack(side="top", fill="x")
+        self.on_password_visibility_change(size)
+        
+        # placeholder button #1
+        placeholderButton = ttk.Button(settingsMenu, text="Placeholder 1", image=placeholderImg, style="SidebarButton.TLabel", compound="left",)
+        placeholderButton.image = placeholderImg
+        placeholderButton.pack(side="top", fill="x")
+        
+        # placeholder button #2
+        placeholderButton = ttk.Button(settingsMenu, text="Placeholder 2", image=placeholderImg, style="SidebarButton.TLabel", compound="left",)
+        placeholderButton.image = placeholderImg
+        placeholderButton.pack(side="top", fill="x")
+        
+        ttk.Separator(settingsMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=25)
+        
+        # settings back button -> home
+        settingsBackButton = ttk.Button(settingsMenu, text="Back", image=settingsBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu("mainMenu"))
+        settingsBackButton.image = settingsBackImg
+        settingsBackButton.pack(side="top", fill="x")
+        
+        
+        # account menu
+        
+        viewAccImg = get_image(self.root, "account.png", *size)
+        accBackImg = get_image(self.root, "return.png", *size)
+        
+        accountTitle = "Menu > Account"
+        ttk.Label(accountMenu, text=accountTitle, font=("HP Simplified Jpan Light", 20)).pack(side="top", anchor="w", padx=20, pady=(79,5))
+        ttk.Separator(accountMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=(0,25))
+        
+        # view account
+        viewAccountButton = ttk.Button(accountMenu, text="View Account", image=viewAccImg, style="SidebarButton.TLabel", compound="left")
+        viewAccountButton.image = viewAccImg
+        viewAccountButton.pack(side="top", fill="x", pady=(10,0))
+        
+        # account back button -> home
+        accountBackButton = ttk.Button(accountMenu, text="Back", image=accBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu("mainMenu"))
+        accountBackButton.image = accBackImg
+        accountBackButton.pack(side="top", fill="x")
         
         
         # add spaces to all widgets
         for button in self.winfo_children():
-            if (not isinstance(button, ttk.Button)):
+            if (not isinstance(button, (ttk.Button, ttk.Checkbutton))):
                 continue
             
-            button.configure(text=" " + button["text"])
+            button.configure(text="        " + button["text"])
             
             
-        self.loadmenu(mainMenu)
+        self.loadmenu("mainMenu")
             
             
     def loadmenu(self, _next) -> None:
         try: self.menu.pack_forget()
         except AttributeError: pass
+        
+        _next = self.menus[_next]
         _next.pack(fill="both", expand=True, padx=1, pady=2)
         self.menu = _next
         
         
-    def on_theme_change(self, button, size:tuple) -> None:
+    def on_theme_change(self) -> None:
         self.root.on_theme_change(self._theme.get())
+        
+        self.root.configParser.set("appearance", "theme", self._theme.get())
+        self.root.write_updated_configs()        
+        
+    def on_password_visibility_change(self, size) -> None:
+        
+        if (self._showPwrd.get()): 
+            self.hidePasswordButton.configure(text="Hide Password")
+            hidePassImg = get_image(self.root, "invisible.png", *size)
+        else: 
+            self.hidePasswordButton.configure(text="Show Password")
+            hidePassImg = get_image(self.root, "visible.png", *size)
+            
+        self.hidePasswordButton.configure(image=hidePassImg)
+        self.hidePasswordButton.image = hidePassImg
+        
+        self.root.configParser.set("privacy", "show_password", str(self._showPwrd.get()))
+        self.root.write_updated_configs()
