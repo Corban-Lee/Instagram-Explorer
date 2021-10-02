@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import Variable, ttk
 
 from instaloader.exceptions import LoginRequiredException
 
@@ -24,6 +24,18 @@ class Sidebar(ttk.LabelFrame):
         
         self._showPwrd = tk.BooleanVar(value=self.root.configParser.getboolean("privacy", "show_password"))
         self._showPwrd.trace_add("write", lambda *arg: self.on_password_visibility_change(size))
+        
+        _defaultUsername = "Username:"
+        self.username = tk.StringVar(value=_defaultUsername)
+        self.username.default = _defaultUsername
+        
+        _defaultPassword = "Password:"
+        self.password = tk.StringVar(value=_defaultPassword)
+        self.password.default = _defaultPassword
+        
+        _defaultTFA = "2FA:"
+        self.tfa = tk.StringVar(value=_defaultTFA)
+        self.tfa.default = _defaultTFA
         
         mainMenu = ttk.Frame(self)
         settingsMenu = ttk.Frame(self)
@@ -139,11 +151,11 @@ class Sidebar(ttk.LabelFrame):
         # log
         logButton = ttk.Button(accountMenu, style="SidebarButton.TLabel", compound="left")
         logButton.image = viewAccImg
-        logButton.pack(side="top", fill="x", pady=(10,0))
+        logButton.pack(side="top", fill="x")
         
         if (self.root.user is None):
             logImg = get_image(self.root, "login.png", *size)
-            logButton.configure(text="Login", image=logImg, command=None)
+            logButton.configure(text="Login", image=logImg, command=lambda:self.loadmenu("loginMenu"))
             
             viewAccountButton.configure(state="disabled")
         else:
@@ -157,12 +169,12 @@ class Sidebar(ttk.LabelFrame):
         # placeholder account
         placeholderButton = ttk.Button(accountMenu, text="placeholder 1", image=accPlaceholderImg, style="SidebarButton.TLabel", compound="left")
         placeholderButton.image = accPlaceholderImg
-        placeholderButton.pack(side="top", fill="x", pady=(10,0))
+        placeholderButton.pack(side="top", fill="x")
         
         # placeholder account
         placeholderButton = ttk.Button(accountMenu, text="placeholder 2", image=accPlaceholderImg, style="SidebarButton.TLabel", compound="left")
         placeholderButton.image = accPlaceholderImg
-        placeholderButton.pack(side="top", fill="x", pady=(10,0))
+        placeholderButton.pack(side="top", fill="x")
         
         ttk.Separator(accountMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=25)
         
@@ -171,6 +183,50 @@ class Sidebar(ttk.LabelFrame):
         accountBackButton.image = accBackImg
         accountBackButton.pack(side="top", fill="x")
         
+        
+        # login menu
+        
+        loginImg = get_image(self.root, "login.png", *size)
+        loginBackImg = get_image(self.root, "return.png", *size)
+        
+        loginTitle = "Menu > Account"
+        ttk.Label(loginMenu, text=loginTitle, font=("HP Simplified Jpan Light", 20)).pack(side="top", anchor="w", padx=20, pady=(79,5))
+        ttk.Separator(loginMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=(0,25))
+        
+        # ttk.Entry(loginMenu, font=("HP Simplified Jpan Light", 14)).pack(side="top", fill="x", padx=10, pady=(10,5))
+        # ttk.Entry(loginMenu, font=("HP Simplified Jpan Light", 14)).pack(side="top", fill="x", padx=10, pady=5)
+        # ttk.Entry(loginMenu, font=("HP Simplified Jpan Light", 14)).pack(side="top", fill="x", padx=10, pady=(5, 10))
+
+        usernameEntry = ttk.Entry(loginMenu, textvariable=self.username, font=("HP Simplified Jpan Light", 14))
+        usernameEntry.pack(side="top", fill="x", padx=10, pady=(12,6))
+        usernameEntry.var = self.username
+        
+        self.passwordEntry = ttk.Entry(loginMenu, textvariable=self.password, font=("HP Simplified Jpan Light", 14))
+        self.passwordEntry.pack(side="top", fill="x", padx=10, pady=6)
+        self.passwordEntry.var = self.password
+        
+        tfaEntry = ttk.Entry(loginMenu, textvariable=self.tfa, font=("HP Simplified Jpan Light", 14))
+        tfaEntry.pack(side="top", fill="x", padx=10, pady=(6,10))
+        tfaEntry.var = self.tfa
+        
+        usernameEntry.bind("<FocusIn>", lambda event: self.toggle_entry(usernameEntry))
+        usernameEntry.bind("<FocusOut>", lambda event: self.toggle_entry(usernameEntry))
+        self.passwordEntry.bind("<FocusIn>", lambda event: self.toggle_entry(self.passwordEntry))
+        self.passwordEntry.bind("<FocusOut>", lambda event: self.toggle_entry(self.passwordEntry))
+        tfaEntry.bind("<FocusIn>", lambda event: self.toggle_entry(tfaEntry))
+        tfaEntry.bind("<FocusOut>", lambda event: self.toggle_entry(tfaEntry))
+        
+        # login button
+        loginButton = ttk.Button(loginMenu, text="Login", image=loginImg, style="SidebarButton.TLabel", compound="left", command=None)
+        loginButton.image = loginImg
+        loginButton.pack(side="top", fill="x")
+        
+        ttk.Separator(loginMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=25)
+        
+        # login back button -> account menu
+        loginBackButton = ttk.Button(loginMenu, text="Back", image=loginBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu("accountMenu"))
+        loginBackButton.image = loginBackImg
+        loginBackButton.pack(side="top", fill="x")
         
         # add spaces to all widgets
         for button in self.winfo_children():
@@ -190,6 +246,22 @@ class Sidebar(ttk.LabelFrame):
         _next = self.menus[_next]
         _next.pack(fill="both", expand=True, padx=1, pady=2)
         self.menu = _next
+        
+        
+    def toggle_entry(self, entry):
+        var =  entry.var
+        
+        if (var.get() == var.default):
+            var.set("")
+            
+            if (entry == self.passwordEntry):
+                self.passwordEntry.configure(show="*")
+        
+        elif (var.get() in ("", " ")):
+            var.set(var.default)
+            
+            if (entry == self.passwordEntry):
+                self.passwordEntry.configure(show="")
         
         
     def on_theme_change(self) -> None:
