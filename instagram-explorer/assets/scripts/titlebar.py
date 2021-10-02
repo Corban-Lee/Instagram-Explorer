@@ -17,7 +17,7 @@ class Titlebar(ttk.LabelFrame):
         self.body.pack(fill="both", expand=True, padx=3, pady=1)
         self.body.bind("<Button-1>", self.drag_window)
         
-        size = (40, 40)
+        size = (45, 45)
         
         closeImg = scripts.get_image(root, "close.png", *size)
         closeActiveImg = scripts.get_image(root, "close_active.png", *size)
@@ -28,12 +28,12 @@ class Titlebar(ttk.LabelFrame):
         minPressedImg = scripts.get_image(root, "minimize_pressed.png", *size)
         
         closeButton = ttk.Button(self.body, style="TitlebarButton.TLabel", takefocus=False, command=root.close_application)
-        closeButton.pack(side="right", fill="y", ipadx=8)
+        closeButton.pack(side="right", padx=8)
         
         self.dynamic_image_style(closeButton, normal=closeImg, active=closeActiveImg, pressed=closePressedImg)
         
         minimizeButton = ttk.Button(self.body, style="TitlebarButton.TLabel", takefocus=False, command=self.minimize_window)
-        minimizeButton.pack(side="right", fill="y", ipadx=8)
+        minimizeButton.pack(side="right", padx=8)
         
         self.dynamic_image_style(minimizeButton, normal=minImg, active=minActiveImg, pressed=minPressedImg)
         

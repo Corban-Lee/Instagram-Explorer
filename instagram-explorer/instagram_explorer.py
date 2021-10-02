@@ -99,7 +99,6 @@ class Root(tk.Tk):
         
         
     def write_updated_configs(self) -> None:
-        print("wrote updated configs")
         with open("assets/config.ini", "w") as file:
             self.configParser.write(file)
         

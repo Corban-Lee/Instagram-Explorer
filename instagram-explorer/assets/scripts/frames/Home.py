@@ -40,7 +40,6 @@ class Home(ttk.Frame):
                     break
                 
                 if (not self.loadingPosts):
-                    print("loop ended at check 1")
                     break
                                 
                 placeholderFrame = ttk.LabelFrame(self.postFrame, width=width, height=height, labelwidget=ttk.Frame())
@@ -54,7 +53,6 @@ class Home(ttk.Frame):
                 thumbnail = scripts.get_image(self.root, post.url, width=width, height=height, mode="url", roundCornerRadius=12, cropToSize=True)
                 
                 if (not self.loadingPosts):
-                    print("loop ended at check 2")
                     break
                 
                 def set_bind(widget, _post):
@@ -66,9 +64,10 @@ class Home(ttk.Frame):
                     postLabel = ttk.Label(self.postFrame, image=thumbnail)
                     postLabel.image = thumbnail
                     postLabel.pack(side="left", padx=10)
+                    
                     set_bind(postLabel, post)
-                except tk.TclError:
-                    print(f"failed to load post {index+1} on home field - tcl error")
+                except tk.TclError as e:
+                    print(f"failed to load post {index+1} on home field - tcl error", e)
                 
         except RuntimeError:
             print("cannot load home feed - run time error")
