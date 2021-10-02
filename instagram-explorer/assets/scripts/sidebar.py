@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from instaloader.exceptions import LoginRequiredException
+
 import assets.scripts as scripts
 from assets.scripts.image_handler import get_image
 
@@ -26,8 +28,10 @@ class Sidebar(ttk.LabelFrame):
         mainMenu = ttk.Frame(self)
         settingsMenu = ttk.Frame(self)
         accountMenu = ttk.Frame(self)
+        loginMenu = ttk.Frame(self)
         
-        self.menus = {"mainMenu": mainMenu, "settingsMenu": settingsMenu, "accountMenu": accountMenu}
+        self.menus = {"mainMenu": mainMenu, "settingsMenu": settingsMenu, "accountMenu": accountMenu,
+                      "loginMenu": loginMenu}
         
         # main menu
 
@@ -120,6 +124,7 @@ class Sidebar(ttk.LabelFrame):
         # account menu
         
         viewAccImg = get_image(self.root, "account.png", *size)
+        accPlaceholderImg = get_image(self.root, "circle.png", *size)
         accBackImg = get_image(self.root, "return.png", *size)
         
         accountTitle = "Menu > Account"
@@ -130,6 +135,36 @@ class Sidebar(ttk.LabelFrame):
         viewAccountButton = ttk.Button(accountMenu, text="View Account", image=viewAccImg, style="SidebarButton.TLabel", compound="left")
         viewAccountButton.image = viewAccImg
         viewAccountButton.pack(side="top", fill="x", pady=(10,0))
+        
+        # log
+        logButton = ttk.Button(accountMenu, style="SidebarButton.TLabel", compound="left")
+        logButton.image = viewAccImg
+        logButton.pack(side="top", fill="x", pady=(10,0))
+        
+        if (self.root.user is None):
+            logImg = get_image(self.root, "login.png", *size)
+            logButton.configure(text="Login", image=logImg, command=None)
+            
+            viewAccountButton.configure(state="disabled")
+        else:
+            logImg = get_image(self.root, "logout.png", *size)
+            logButton.configure(text="Logout", image=logImg, command=None)
+            
+            viewAccountButton.configure(state="normal")
+            
+        logButton.image = logImg
+        
+        # placeholder account
+        placeholderButton = ttk.Button(accountMenu, text="placeholder 1", image=accPlaceholderImg, style="SidebarButton.TLabel", compound="left")
+        placeholderButton.image = accPlaceholderImg
+        placeholderButton.pack(side="top", fill="x", pady=(10,0))
+        
+        # placeholder account
+        placeholderButton = ttk.Button(accountMenu, text="placeholder 2", image=accPlaceholderImg, style="SidebarButton.TLabel", compound="left")
+        placeholderButton.image = accPlaceholderImg
+        placeholderButton.pack(side="top", fill="x", pady=(10,0))
+        
+        ttk.Separator(accountMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=25)
         
         # account back button -> home
         accountBackButton = ttk.Button(accountMenu, text="Back", image=accBackImg, style="SidebarButton.TLabel", compound="left", command=lambda:self.loadmenu("mainMenu"))
@@ -142,7 +177,7 @@ class Sidebar(ttk.LabelFrame):
             if (not isinstance(button, (ttk.Button, ttk.Checkbutton))):
                 continue
             
-            button.configure(text="        " + button["text"])
+            button.configure(text=" " + button["text"])
             
             
         self.loadmenu("mainMenu")
