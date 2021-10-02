@@ -78,13 +78,6 @@ class Root(tk.Tk):
         # create sidebar
         self.prepare_sidebar()
         
-        # create scrollbar
-        scrollFrame = ttk.LabelFrame(self.innerBody, labelwidget=ttk.Frame(), style="RootBody.TLabelframe")
-        scrollFrame.pack(side="right", fill="y", pady=(0,10), padx=(0,10))
-        
-        self.scrollbar = ttk.Scrollbar(scrollFrame, orient="vertical", style="NoTrough.TScrollbar")
-        self.scrollbar.pack(fill="y", padx=1, pady=2, expand=True)
-        
         # create frame holder
         self.frameHolder = ttk.LabelFrame(self.innerBody, labelwidget=ttk.Frame(), style="RootBody.TLabelframe")
         self.frameHolder.pack(side="right", fill="both", expand=True, padx=10, pady=(0,10))
