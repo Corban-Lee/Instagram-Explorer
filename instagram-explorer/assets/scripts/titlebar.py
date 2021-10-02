@@ -6,7 +6,7 @@ import assets.scripts as scripts
 
 class Titlebar(ttk.LabelFrame):
     def __init__(self, master, root) -> None:
-        super().__init__(master, labelwidget=ttk.Frame())
+        super().__init__(master, labelwidget=ttk.Frame(), style="RootBody.TLabelframe")
         self.root = root
 
         self.pack_propagate(False)

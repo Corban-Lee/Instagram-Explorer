@@ -9,15 +9,18 @@ from assets.scripts.image_handler import get_image
 
 class Sidebar(ttk.LabelFrame):
     def __init__(self, master):
-        super().__init__(master, width=350, labelwidget=ttk.Frame())
+        super().__init__(master, width=350, labelwidget=ttk.Frame(), style="RootBody.TLabelframe")
         self.pack_propagate(False)
         
         self.root = master
         while (str(self.root) != "."):
             self.root = self.nametowidget(self.root.winfo_parent())
             
-        image = scripts.get_image
+        image = scripts.get_image        
         size = (60, 60)
+        
+        titleFont = ("HP Simplified Jpan Light", 20)
+        entryFont = ("HP Simplified Jpan Light", 14)
         
         self._theme = tk.StringVar(value=str(self.root.tk.call("ttk::style", "theme", "use")).split("-")[-1])
         self._theme.trace_add("write", lambda *arg: self.on_theme_change())
@@ -56,7 +59,7 @@ class Sidebar(ttk.LabelFrame):
         
         # title
         mainTitle = "Menu"
-        ttk.Label(mainMenu, text=mainTitle, font=("HP Simplified Jpan Light", 20)).pack(side="top", anchor="w", padx=20, pady=(79,5))
+        ttk.Label(mainMenu, text=mainTitle, font=titleFont).pack(side="top", anchor="w", padx=20, pady=(79,5))
         ttk.Separator(mainMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=(0,25))
         
         # search button
@@ -99,7 +102,7 @@ class Sidebar(ttk.LabelFrame):
         settingsBackImg = get_image(self.root, "return.png", *size)
         
         settingsTitle = "Menu > Settings"
-        ttk.Label(settingsMenu, text=settingsTitle, font=("HP Simplified Jpan Light", 20)).pack(side="top", anchor="w", padx=20, pady=(79,5))
+        ttk.Label(settingsMenu, text=settingsTitle, font=titleFont).pack(side="top", anchor="w", padx=20, pady=(79,5))
         ttk.Separator(settingsMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=(0,25))
         
         # theme buttons
@@ -140,7 +143,7 @@ class Sidebar(ttk.LabelFrame):
         accBackImg = get_image(self.root, "return.png", *size)
         
         accountTitle = "Menu > Account"
-        ttk.Label(accountMenu, text=accountTitle, font=("HP Simplified Jpan Light", 20)).pack(side="top", anchor="w", padx=20, pady=(79,5))
+        ttk.Label(accountMenu, text=accountTitle, font=titleFont).pack(side="top", anchor="w", padx=20, pady=(79,5))
         ttk.Separator(accountMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=(0,25))
         
         # view account
@@ -190,22 +193,22 @@ class Sidebar(ttk.LabelFrame):
         loginBackImg = get_image(self.root, "return.png", *size)
         
         loginTitle = "Menu > Account"
-        ttk.Label(loginMenu, text=loginTitle, font=("HP Simplified Jpan Light", 20)).pack(side="top", anchor="w", padx=20, pady=(79,5))
+        ttk.Label(loginMenu, text=loginTitle, font=titleFont).pack(side="top", anchor="w", padx=20, pady=(79,5))
         ttk.Separator(loginMenu, orient="horizontal").pack(side="top", fill="x", padx=20, pady=(0,25))
         
         # ttk.Entry(loginMenu, font=("HP Simplified Jpan Light", 14)).pack(side="top", fill="x", padx=10, pady=(10,5))
         # ttk.Entry(loginMenu, font=("HP Simplified Jpan Light", 14)).pack(side="top", fill="x", padx=10, pady=5)
         # ttk.Entry(loginMenu, font=("HP Simplified Jpan Light", 14)).pack(side="top", fill="x", padx=10, pady=(5, 10))
 
-        usernameEntry = ttk.Entry(loginMenu, textvariable=self.username, font=("HP Simplified Jpan Light", 14))
+        usernameEntry = ttk.Entry(loginMenu, textvariable=self.username, font=entryFont)
         usernameEntry.pack(side="top", fill="x", padx=10, pady=(12,6))
         usernameEntry.var = self.username
         
-        self.passwordEntry = ttk.Entry(loginMenu, textvariable=self.password, font=("HP Simplified Jpan Light", 14))
+        self.passwordEntry = ttk.Entry(loginMenu, textvariable=self.password, font=entryFont)
         self.passwordEntry.pack(side="top", fill="x", padx=10, pady=6)
         self.passwordEntry.var = self.password
         
-        tfaEntry = ttk.Entry(loginMenu, textvariable=self.tfa, font=("HP Simplified Jpan Light", 14))
+        tfaEntry = ttk.Entry(loginMenu, textvariable=self.tfa, font=entryFont)
         tfaEntry.pack(side="top", fill="x", padx=10, pady=(6,10))
         tfaEntry.var = self.tfa
         
@@ -254,7 +257,7 @@ class Sidebar(ttk.LabelFrame):
         if (var.get() == var.default):
             var.set("")
             
-            if (entry == self.passwordEntry):
+            if (entry == self.passwordEntry) & (self._showPwrd.get()):
                 self.passwordEntry.configure(show="*")
         
         elif (var.get() in ("", " ")):
@@ -275,9 +278,13 @@ class Sidebar(ttk.LabelFrame):
         if (self._showPwrd.get()): 
             self.hidePasswordButton.configure(text="Hide Password")
             hidePassImg = get_image(self.root, "invisible.png", *size)
+            try: self.passwordEntry.configure(show="")
+            except AttributeError: pass
         else: 
             self.hidePasswordButton.configure(text="Show Password")
             hidePassImg = get_image(self.root, "visible.png", *size)
+            try: self.passwordEntry.configure(show="*")
+            except AttributeError: pass
             
         self.hidePasswordButton.configure(image=hidePassImg)
         self.hidePasswordButton.image = hidePassImg
