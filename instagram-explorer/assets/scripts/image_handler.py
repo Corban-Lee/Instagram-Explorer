@@ -48,8 +48,6 @@ def get_image(root, source:str,
     if (cropToSize):
         image = crop(image, width, height)
     
-    image = image.resize((width, height), Image.ANTIALIAS)
-    
     if (roundCornerRadius > 0) & (not makeCircle):
         image = cut_corners(image, roundCornerRadius)
         
@@ -58,6 +56,8 @@ def get_image(root, source:str,
         
     if (rotation != 0):
         image = rotate_image(image, rotation)
+        
+    image = image.resize((width, height), resample=Image.ANTIALIAS)
     
     try:
         if (maketk): return ImageTk.PhotoImage(image)
