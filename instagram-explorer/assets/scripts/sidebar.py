@@ -73,12 +73,12 @@ class Sidebar(ttk.LabelFrame):
         accountButton.pack(side="top", fill="x")
         
         # upload button
-        uploadButton = ttk.Button(mainMenu, text="Upload", image=uploadImg, style="SidebarButton.TLabel", compound="left", state="disabled")
+        uploadButton = ttk.Button(mainMenu, text="Upload", image=uploadImg, style="SidebarButton.TLabel", compound="left")
         uploadButton.image = uploadImg
         uploadButton.pack(side="top", fill="x")
         
         # message button
-        messageButton = ttk.Button(mainMenu, text="Messages", image=messageImg, style="SidebarButton.TLabel", compound="left", state="disabled")
+        messageButton = ttk.Button(mainMenu, text="Messages", image=messageImg, style="SidebarButton.TLabel", compound="left")
         messageButton.image = messageImg
         messageButton.pack(side="top", fill="x")
         
@@ -160,7 +160,7 @@ class Sidebar(ttk.LabelFrame):
             logImg = get_image(self.root, "login.png", *size)
             logButton.configure(text="Login", image=logImg, command=lambda:self.loadmenu("loginMenu"))
             
-            viewAccountButton.configure(state="disabled")
+            # viewAccountButton.configure(state="disabled")
         else:
             logImg = get_image(self.root, "logout.png", *size)
             logButton.configure(text="Logout", image=logImg, command=None)
@@ -247,7 +247,7 @@ class Sidebar(ttk.LabelFrame):
         except AttributeError: pass
         
         _next = self.menus[_next]
-        _next.pack(fill="both", expand=True, padx=1, pady=2)
+        _next.pack(fill="both", expand=True, padx=1, pady=3)
         self.menu = _next
         
         

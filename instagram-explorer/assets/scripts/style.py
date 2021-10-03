@@ -12,20 +12,31 @@ class Style(ttk.Style):
         if (theme == "dark"):
             activebg = "#2f2f2f"
             pressedbg = "#232323"
-            secondbg = "#202020"
+            
+            primarybg = "#202020"
+            secondbg = "#1c1c1c"
+            
+            fg = "#f9f9f9" # BB86FC for purple
         
         elif (theme == "light"):
             activebg = "#EEEEEE"
             pressedbg = "#E0E0E0"
-            secondbg = "#FAF9F6"
+            
+            primarybg = "#f9f9f9"
+            secondbg = "#fff"
+            
+            fg = "#000"
         
-        self.configure(".", font=("HP Simplified Jpan Light", 15))
-        self.configure("TLabel", font=("HP Simplified Jpan Light", 15), anchor="center")
+        self.configure(".", font=("HP Simplified Jpan Light", 15), foreground=fg)
+        self.configure("TLabel", font=("HP Simplified Jpan Light", 15), anchor="center", background=primarybg)
+        self.configure("TFrame", background=primarybg)
+        self.configure("TLabelframe", background=primarybg)
         
         self.configure("RootBody.TFrame", background=secondbg)
+        self.configure("RootBody.TLabelframe", background=secondbg)
         
         self.configure("Titlebar.TLabel", anchor="center")
-        self.configure("TitlebarButton.TLabel", anchor="center")
+        self.configure("TitlebarButton.TLabel", anchor="center", background=primarybg)
         # self.map("TitlebarButton.TLabel", background=[("pressed", pressedbg), ("active", activebg)])
         
         

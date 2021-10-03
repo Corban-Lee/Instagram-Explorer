@@ -37,13 +37,9 @@ class Titlebar(ttk.LabelFrame):
         
         self.dynamic_image_style(minimizeButton, normal=minImg, active=minActiveImg, pressed=minPressedImg)
         
-        # titleLabel = ttk.Label(self.body, text=self.master.title(), style="Titlebar.TLabel", font=("HP Simplified Hans Light", 12))
-        # titleLabel.pack(side="left", fill="y", padx=10)
+        # titleLabel = ttk.Label(self.body, text=self.root.title(), style="Titlebar.TLabel", font=("HP Simplified Jpan Light", 15))
+        # titleLabel.pack(side="left", padx=15)
         # titleLabel.bind("<Button-1>", self.drag_window)
-        
-        # logoLabel = ttk.Label(self.body, image=iconImg, style="Titlebar.TLabel")
-        # logoLabel.image = iconImg
-        # logoLabel.pack(side="left", padx=(15,5), before=titleLabel)
         
         
     def dynamic_image_style(self, button, normal, active, pressed) -> None:
