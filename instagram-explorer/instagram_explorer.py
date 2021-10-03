@@ -43,7 +43,7 @@ class Root(tk.Tk):
         self.tk.call("source", "assets/theme/sun-valley.tcl")
         self.tk.call("set_theme", self.configParser.get("appearance", "theme"))
         self.style = scripts.Style(self)
-        self.configure(borderwidth=1, relief="solid")
+        # self.configure(borderwidth=1, relief="solid")
         
         # setup window
         self.title("Instagram Explorer")
@@ -60,10 +60,10 @@ class Root(tk.Tk):
         self.geometry(f'+{x}+{y}')
         
         # setup instagram
-        self.instaloader = instaloader.Instaloader()
-        self.instabot = instabot.Bot()
+        self.instaloader = instaloader.Instaloader(quiet=True)
+        self.instabot = instabot.Bot(base_path="/assets/bot_config/")
         self.user = None
-        
+
         # create body
         self.body = ttk.Frame(self, style="RootBody.TFrame")
         self.body.pack(fill="both", expand=True)
