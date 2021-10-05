@@ -32,6 +32,8 @@ class Style(ttk.Style):
         self.configure("TFrame", background=primarybg)
         self.configure("TLabelframe", background=primarybg)
         
+        self.configure("TEST.TFrame", background="#000")
+        
         self.configure("RootBody.TFrame", background=secondbg)
         self.configure("RootBody.TLabelframe", background=secondbg)
         
