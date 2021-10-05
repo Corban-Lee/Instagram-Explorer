@@ -40,13 +40,19 @@ def get_image(root, source:str,
             with urlopen(source) as u: rawData = u.read()
             image = Image.open(BytesIO(rawData))
         except URLError as e:
-            image = get_image(root, source=source, width=width, height=height, mode='url', urlRetries=urlRetries-1, maketk=False)
+            if (urlRetries == 0):
+                image = get_image(root, source="urlerror.png", width=width, height=height, mode="path", maketk=False)
+            
+            else:
+                image = get_image(root, source=source, width=width, height=height, mode='url', urlRetries=urlRetries-1, maketk=False)
     
     else:
         raise TypeError(f"mode {mode} is invalid")
     
     if (cropToSize):
         image = crop(image, width, height)
+        
+    image = image.resize((width, height), resample=Image.ANTIALIAS)
     
     if (roundCornerRadius > 0) & (not makeCircle):
         image = cut_corners(image, roundCornerRadius)
@@ -56,8 +62,6 @@ def get_image(root, source:str,
         
     if (rotation != 0):
         image = rotate_image(image, rotation)
-        
-    image = image.resize((width, height), resample=Image.ANTIALIAS)
     
     try:
         if (maketk): return ImageTk.PhotoImage(image)
@@ -106,7 +110,7 @@ def cut_corners(image, rad):
     
     # TODO: apply filter to rounded corners so they arent rough
     
-    return image
+    return image.resize(image.size, Image.ANTIALIAS)
 
 
 def mask_circle_transparent(pil_img, blur_radius, offset=0):
