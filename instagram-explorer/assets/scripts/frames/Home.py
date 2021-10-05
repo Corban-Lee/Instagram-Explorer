@@ -6,9 +6,11 @@ import threading
 import random
 import datetime
 
-from instaloader import exceptions
-
 import assets.scripts as scripts
+
+THUMBNAIL_W, THUMBNAIL_H = 160, 160
+POSTFRAME_W, POSTFRAME_H = 350, None
+
 
 class Home(ttk.Frame):
     def __init__(self, master, root):
@@ -28,24 +30,31 @@ class Home(ttk.Frame):
         ttk.Label(topHolder, textvariable=self.clock, font=("HP Simplified Jpan Light", 20), anchor="s").pack(side="right", anchor="s")
         ttk.Separator(self, orient="horizontal").pack(fill="x", padx=20, pady=(5,0))
         
-        tags = ("Programming", "Computer", "Gaming", "Crypto", "News")
+        tags = ["Programming", "Computer", "Gaming", "Crypto", "News"]
         chosenPTag = random.choice(tags)
+        tags.remove(chosenPTag)
         chosenNTag = random.choice(tags)
         
         postFrame = ttk.Frame(self)
-        postFrame.pack(side="bottom", fill="both", expand=True)
+        postFrame.pack(side="bottom", fill="y", expand=True)
         
         popularFrame = ttk.LabelFrame(postFrame, labelwidget=ttk.Button(text=f" Popular on #{chosenPTag} ", style="TLabel"), width=350)
-        popularFrame.pack(side="left", fill="y", expand=True, padx=20, pady=10)
+        popularFrame.pack(side="left", fill="y", padx=(0,30), pady=60)
         
         popularHashtag = lambda: instaloader.Hashtag.from_name(self.root.instaloader.context, chosenPTag).get_top_posts()
-        threading.Thread(target=lambda:self.populate_frame(frame=popularFrame, _with=popularHashtag, _amt=6)).start()
+        
+        try: threading.Thread(target=lambda:self.populate_frame(frame=popularFrame, _with=popularHashtag, _amt=4)).start()
+        except tk.TclError: pass
+        except RuntimeError: pass
 
         newFrame = ttk.LabelFrame(postFrame, labelwidget=ttk.Button(text=f" New on #{chosenNTag} ", style="TLabel"), width=350)
-        newFrame.pack(side="left", fill="y", expand=True, pady=10)
+        newFrame.pack(side="left", fill="y", pady=60)
         
         newHashtag = lambda: instaloader.Hashtag.from_name(self.root.instaloader.context, chosenNTag).get_posts()
-        threading.Thread(target=lambda:self.populate_frame(frame=newFrame, _with=newHashtag, _amt=6)).start()
+        
+        try: threading.Thread(target=lambda:self.populate_frame(frame=newFrame, _with=newHashtag, _amt=4)).start()
+        except tk.TclError: pass
+        except RuntimeError: pass
     
         
     def load(self) -> None:
@@ -77,29 +86,47 @@ class Home(ttk.Frame):
         # message += " User,"
         self.welcomeMessage.set(message)
         return message
+    
+    
+    def on_new_content(self, widget:ttk.Label) -> None:
+        parent = self.nametowidget(widget.winfo_parent())
+        parent.grid_propagate(True)
+        
+        def check():
+            if (parent.winfo_width() < POSTFRAME_W):
+                parent.grid_propagate(False)
+                parent.configure(width=POSTFRAME_W)
+                
+        self.root.after(5, check)
+                
         
         
     def populate_frame(self, frame, _with, _amt) -> None:
         col = 0
         row = 0
         try: iterable = _with()
-        except instaloader.exceptions.LoginRequiredException: return print("login required")
-        for index, post in enumerate(iterable):
+        except instaloader.exceptions.LoginRequiredException: pass # return print("login required")
+        for index, post in enumerate((1,2,3,4,5,6,7,8)): # enumerate(iterable):
             if (index >= _amt):
                 break
             
-            if (col == 0):  padx=10
-            else:           padx=(0,10)
+            match col: 
+                case 0: padx = 10
+                case _: padx = (0, 10)
+
+            match row:
+                case 0: pady=(10,0)
+                case 1: pady=10
+                # case _: pady=(0,10)
             
-            if (row == 0):  pady=(10,0)
-            elif (row == 1):pady=10
-            else:           pady=(0,10)
+            postFrame = ttk.LabelFrame(frame, labelwidget=ttk.Frame(), width=THUMBNAIL_W, height=THUMBNAIL_H)
+            postFrame.grid(column=col, row=row, padx=padx, pady=pady)
             
-            # postFrame = ttk.LabelFrame(frame, labelwidget=ttk.Frame(), width=150, height=150)
-            # postFrame.grid(column=col, row=row, padx=padx, pady=pady)
+            if (index == 0):
+                self.on_new_content(postFrame)
             
-            postLabel = self.get_post(master=frame, post=post, width=150, height=150)
-            postLabel.grid(column=col, row=row, padx=padx, pady=pady)
+            # postLabel = self.get_post(master=frame, post=post, width=THUMBNAIL_W, height=THUMBNAIL_H)
+            # postLabel.grid(column=col, row=row, padx=padx, pady=pady)
             
             col += 1
             if (col == 2):
@@ -107,7 +134,8 @@ class Home(ttk.Frame):
                 
                 
     def get_post(self, master, post, width, height) -> ttk.Label:
-        thumbnailImage = scripts.get_image(self.root, source=post.url, width=width, height=height, mode="url", roundCornerRadius=40, cropToSize=True)
+        print("getting image")
+        thumbnailImage = scripts.get_image(self.root, source=post.url, width=width, height=height, mode="url", roundCornerRadius=20, cropToSize=True)
         label = ttk.Label(master, image=thumbnailImage)
         label.image = thumbnailImage
         
